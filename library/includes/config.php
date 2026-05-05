@@ -15,4 +15,3 @@ exit("Error: " . $e->getMessage());
 }
 ?>
 
-#toconfig   
