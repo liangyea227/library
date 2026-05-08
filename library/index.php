@@ -2,34 +2,66 @@
 session_start();
 error_reporting(0);
 include('includes/config.php');
-if($_SESSION['login']!=''){
-    $_SESSION['login']='';
+
+// Reset sessions if someone is already logged in and returns to the login page
+if(isset($_SESSION['login']) && $_SESSION['login'] != ''){
+    $_SESSION['login'] = '';
 }
-if(isset($_POST['login']))
+if(isset($_SESSION['alogin']) && $_SESSION['alogin'] != ''){
+    $_SESSION['alogin'] = '';
+}
+
+$loginType = isset($_POST['loginType']) ? $_POST['loginType'] : 'student';
+
+// ==========================================
+// 1. STUDENT LOGIN
+// ==========================================
+if(isset($_POST['login']) && $loginType == 'student')
 {
-    // Note: Kept 'emailid' variable name to match your backend, though UI says 'Username'
-    $email=$_POST['emailid'];
-    $password=md5($_POST['password']);
-    $sql ="SELECT EmailId,Password,StudentId,Status FROM tblstudents WHERE EmailId=:email and Password=:password";
-    $query= $dbh -> prepare($sql);
-    $query-> bindParam(':email', $email, PDO::PARAM_STR);
-    $query-> bindParam(':password', $password, PDO::PARAM_STR);
-    $query-> execute();
-    $results=$query->fetchAll(PDO::FETCH_OBJ);
+    $email = $_POST['emailid']; 
+    $password = md5($_POST['password']); 
+
+    $sql = "SELECT EmailId, Password, StudentId, Status FROM tblstudents WHERE EmailId=:email and Password=:password";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':email', $email, PDO::PARAM_STR);
+    $query->bindParam(':password', $password, PDO::PARAM_STR);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_OBJ);
 
     if($query->rowCount() > 0)
     {
-        foreach ($results as $result) {
-            $_SESSION['stdid']=$result->StudentId;
-            if($result->Status==1) {
-                $_SESSION['login']=$_POST['emailid'];
-                echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
-            } else {
-                echo "<script>alert('Your Account Has been blocked. Please contact admin');</script>";
-            }
+        if($result->Status == 1) {
+            $_SESSION['stdid'] = $result->StudentId;
+            $_SESSION['login'] = $_POST['emailid'];
+            echo "<script type='text/javascript'> document.location = 'dashboard.php'; </script>";
+        } else {
+            echo "<script>alert('Your Account has been blocked. Please contact admin.');</script>";
         }
     } else {
-        echo "<script>alert('Invalid Details');</script>";
+        echo "<script>alert('Invalid Student Details');</script>";
+    }
+}
+
+// ==========================================
+// 2. ADMIN LOGIN
+// ==========================================
+if(isset($_POST['login']) && $loginType == 'admin')
+{
+    $username = trim($_POST['emailid']); // trim to remove accidental whitespace
+    $password = md5(trim($_POST['password']));
+
+    $sql = "SELECT UserName, Password FROM admin WHERE UserName=:username AND Password=:password";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':username', $username, PDO::PARAM_STR);
+    $query->bindParam(':password', $password, PDO::PARAM_STR);
+    $query->execute();
+
+    if($query->rowCount() > 0)
+    {
+        $_SESSION['alogin'] = $username;
+        echo "<script type='text/javascript'> document.location = 'admin/dashboard.php'; </script>";
+    } else {
+        echo "<script>alert('Invalid Admin Details');</script>";
     }
 }
 ?>
@@ -45,7 +77,6 @@ if(isset($_POST['login']))
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 
     <style>
-        /* Custom Split-Screen Layout CSS */
         body, html {
             height: 100%;
             margin: 0;
@@ -58,17 +89,14 @@ if(isset($_POST['login']))
             min-height: 100vh;
         }
 
-        /* Left Side: Image Background */
         .left-half {
-            flex: 6; /* Takes up roughly 60% of the screen */
-            /* UPDATE THE URL BELOW TO YOUR LIBRARY BACKGROUND IMAGE */
+            flex: 6;
             background: url('assets/img/library_bg.jpg') no-repeat center center;
             background-size: cover;
         }
 
-        /* Right Side: Login Form */
         .right-half {
-            flex: 4; /* Takes up roughly 40% of the screen */
+            flex: 4;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -82,7 +110,6 @@ if(isset($_POST['login']))
             text-align: center;
         }
 
-        /* Branding */
         .logo-area img {
             width: 80px;
             margin-bottom: 10px;
@@ -100,7 +127,6 @@ if(isset($_POST['login']))
             margin-bottom: 30px;
         }
 
-        /* User/Admin Toggle Styling */
         .role-toggle {
             display: flex;
             background: #e0e0e0;
@@ -113,19 +139,19 @@ if(isset($_POST['login']))
             padding: 10px 0;
             font-size: 12px;
             font-weight: bold;
-            color: #fff;
             cursor: pointer;
             transition: 0.3s;
-        }
-        .role-toggle .active {
-            background: #0000ff; /* Blue color matching your design */
             border-radius: 25px;
         }
+        .role-toggle .active {
+            background: #0000ff;
+            color: #fff;
+        }
         .role-toggle .inactive {
+            background: transparent;
             color: #888;
         }
 
-        /* Input Fields with Icons */
         .input-group-custom {
             position: relative;
             margin-bottom: 15px;
@@ -157,7 +183,6 @@ if(isset($_POST['login']))
             color: #333;
         }
 
-        /* Buttons & Links */
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -195,11 +220,17 @@ if(isset($_POST['login']))
 
         .forgot-password {
             font-size: 12px;
-            color: #4dc3ff; /* Cyan color from design */
+            color: #4dc3ff;
             text-decoration: underline;
         }
 
-        /* Responsive behavior */
+        .student-only {
+            display: block;
+        }
+        .admin-mode .student-only {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .split-layout {
                 flex-direction: column;
@@ -220,24 +251,23 @@ if(isset($_POST['login']))
         <div class="left-half"></div>
 
         <div class="right-half">
-            <div class="login-container">
+            <div class="login-container" id="login-container">
                 
                 <div class="logo-area">
-                    <img src="assets/img/limlibrary.png" alt="Logo" />
-                    <h2>LIM LIBRARY</h2>
-                    <p>GAIN MORE KNOWLEDGE</p>
+                    <img src="assets/img/limlibrary.png" style="max-height: 70px; width: auto; margin-top: -10px;" alt="Library Logo" />
                 </div>
 
                 <div class="role-toggle">
-                    <div class="active">User / Student</div>
-                    <div class="inactive" onclick="window.location.href='adminlogin.php'">Staff / Admin</div>
+                    <div id="student-tab" class="active" onclick="switchRole('student')">User / Student</div>
+                    <div id="admin-tab" class="inactive" onclick="switchRole('admin')">Staff / Admin</div>
                 </div>
 
                 <form role="form" method="post">
+                    <input type="hidden" name="loginType" id="loginType" value="student" />
                     
                     <div class="input-group-custom">
                         <i class="fa fa-user left-icon"></i>
-                        <input type="text" name="emailid" placeholder="Username" required autocomplete="off" />
+                        <input type="text" name="emailid" id="emailid" placeholder="Username" required autocomplete="off" />
                     </div>
                     
                     <div class="input-group-custom">
@@ -247,10 +277,10 @@ if(isset($_POST['login']))
                     </div>
 
                     <button type="submit" name="login" class="btn-login">Login</button>
-                    <a href="signup.php" class="btn-signup">Sign Up</a>
-                    <a href="user-forgot-password.php" class="forgot-password">Forgot Password</a>
-
+                    <a href="signup.php" class="btn-signup student-only">Sign Up</a>
+                    <a href="user-forgot-password.php" class="forgot-password student-only">Forgot Password</a>
                 </form>
+
             </div>
         </div>
     </div>
@@ -258,13 +288,30 @@ if(isset($_POST['login']))
     <script src="assets/js/jquery-1.10.2.js"></script>
     <script src="assets/js/bootstrap.js"></script>
     <script>
-        // Script to toggle password visibility (eye icon)
         function togglePassword() {
             var passField = document.getElementById("password-field");
-            if (passField.type === "password") {
-                passField.type = "text";
+            passField.type = passField.type === "password" ? "text" : "password";
+        }
+
+        function switchRole(role) {
+            var studentTab = document.getElementById("student-tab");
+            var adminTab = document.getElementById("admin-tab");
+            var loginTypeField = document.getElementById("loginType");
+            var container = document.getElementById("login-container");
+            var emailField = document.getElementById("emailid");
+
+            if (role === 'admin') {
+                studentTab.className = "inactive";
+                adminTab.className = "active";
+                loginTypeField.value = "admin";
+                container.classList.add("admin-mode");
+                emailField.placeholder = "Admin Username";
             } else {
-                passField.type = "password";
+                studentTab.className = "active";
+                adminTab.className = "inactive";
+                loginTypeField.value = "student";
+                container.classList.remove("admin-mode");
+                emailField.placeholder = "Username";
             }
         }
     </script>
