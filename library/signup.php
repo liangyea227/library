@@ -37,121 +37,270 @@ else
 echo "<script>alert('Something went wrong. Please try again');</script>";
 }
 }
-
 ?>
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <!--[if IE]>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <![endif]-->
-    <title>Online Library Management System | Student Signup</title>
-    <!-- BOOTSTRAP CORE STYLE  -->
+    <title>Lim Library Management System | Student Signup</title>
+ 
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
-    <!-- FONT AWESOME STYLE  -->
     <link href="assets/css/font-awesome.css" rel="stylesheet" />
-    <!-- CUSTOM STYLE  -->
-    <link href="assets/css/style.css" rel="stylesheet" />
-    <!-- GOOGLE FONT -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-<script type="text/javascript">
-function valid()
-{
-if(document.signup.password.value!= document.signup.confirmpassword.value)
-{
-alert("Password and Confirm Password Field do not match  !!");
-document.signup.confirmpassword.focus();
-return false;
-}
-return true;
-}
-</script>
-<script>
-function checkAvailability() {
-$("#loaderIcon").show();
-jQuery.ajax({
-url: "check_availability.php",
-data:'emailid='+$("#emailid").val(),
-type: "POST",
-success:function(data){
-$("#user-availability-status").html(data);
-$("#loaderIcon").hide();
-},
-error:function (){}
-});
-}
-</script>    
-
+ 
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+            overflow-x: hidden;
+        }
+ 
+        .split-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+ 
+        .left-half {
+            flex: 6;
+            background: url('assets/img/library_bg.jpg') no-repeat center center;
+            background-size: cover;
+        }
+ 
+        .right-half {
+            flex: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            padding: 40px;
+            overflow-y: auto;
+        }
+ 
+        .signup-container {
+            width: 100%;
+            max-width: 370px;
+            text-align: center;
+            padding: 20px 0;
+        }
+ 
+        .logo-area img {
+            max-height: 70px;
+            width: auto;
+            margin-bottom: 10px;
+        }
+ 
+        .page-label {
+            display: inline-block;
+            background: #e8e8ff;
+            color: #0000ff;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+ 
+        .input-group-custom {
+            position: relative;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+ 
+        .input-group-custom i.left-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 17px;
+        }
+ 
+        .input-group-custom i.right-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            font-size: 17px;
+            cursor: pointer;
+        }
+ 
+        .input-group-custom input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1.5px solid #0000ff;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            color: #333;
+            font-family: 'Open Sans', sans-serif;
+            box-sizing: border-box;
+        }
+ 
+        .input-group-custom input:focus {
+            border-color: #0000cc;
+            box-shadow: 0 0 0 3px rgba(0,0,255,0.08);
+        }
+ 
+        .email-status {
+            font-size: 11px;
+            margin-top: 4px;
+            padding-left: 4px;
+            display: block;
+            text-align: left;
+        }
+ 
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            background: #0000ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 6px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Open Sans', sans-serif;
+        }
+ 
+        .btn-register:hover {
+            background: #0000cc;
+        }
+ 
+        .back-login {
+            display: block;
+            width: 100%;
+            padding: 11px;
+            background: white;
+            color: #555;
+            border: 1.5px solid #0000ff;
+            border-radius: 8px;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+        }
+ 
+        .back-login:hover {
+            background: #f0f0ff;
+            text-decoration: none;
+            color: #333;
+        }
+ 
+        @media (max-width: 768px) {
+            .split-layout {
+                flex-direction: column;
+            }
+            .left-half {
+                min-height: 220px;
+                flex: none;
+            }
+            .right-half {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+ 
+    <script type="text/javascript">
+        function valid() {
+            if (document.signup.password.value != document.signup.confirmpassword.value) {
+                alert("Password and Confirm Password Field do not match !!");
+                document.signup.confirmpassword.focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
+ 
+    <script src="assets/js/jquery-1.10.2.js"></script>
+    <script>
+        function checkAvailability() {
+            $("#loaderIcon").show();
+            jQuery.ajax({
+                url: "check_availability.php",
+                data: 'emailid=' + $("#emailid").val(),
+                type: "POST",
+                success: function(data) {
+                    $("#user-availability-status").html(data);
+                    $("#loaderIcon").hide();
+                },
+                error: function() {}
+            });
+        }
+ 
+        function togglePassword(fieldId) {
+            var field = document.getElementById(fieldId);
+            field.type = field.type === "password" ? "text" : "password";
+        }
+    </script>
 </head>
 <body>
-    <!------MENU SECTION START-->
-<?php include('includes/header.php');?>
-<!-- MENU SECTION END-->
-    <div class="content-wrapper">
-         <div class="container">
-        <div class="row pad-botm">
-            <div class="col-md-12">
-                <h4 class="header-line">User Signup</h4>
-                
-                            </div>
-
-        </div>
-             <div class="row">
-           
-<div class="col-md-9 col-md-offset-1">
-               <div class="panel panel-danger">
-                        <div class="panel-heading">
-                           SINGUP FORM
-                        </div>
-                        <div class="panel-body">
-                            <form name="signup" method="post" onSubmit="return valid();">
-<div class="form-group">
-<label>Enter Full Name</label>
-<input class="form-control" type="text" name="fullanme" autocomplete="off" required />
-</div>
-
-
-<div class="form-group">
-<label>Mobile Number :</label>
-<input class="form-control" type="text" name="mobileno" maxlength="10" autocomplete="off" required />
-</div>
-                                        
-<div class="form-group">
-<label>Enter Email</label>
-<input class="form-control" type="email" name="email" id="emailid" onBlur="checkAvailability()"  autocomplete="off" required  />
-   <span id="user-availability-status" style="font-size:12px;"></span> 
-</div>
-
-<div class="form-group">
-<label>Enter Password</label>
-<input class="form-control" type="password" name="password" autocomplete="off" required  />
-</div>
-
-<div class="form-group">
-<label>Confirm Password </label>
-<input class="form-control"  type="password" name="confirmpassword" autocomplete="off" required  />
-</div>
-                             
-<button type="submit" name="signup" class="btn btn-danger" id="submit">Register Now </button>
-
-                                    </form>
-                            </div>
-                        </div>
-                            </div>
+ 
+<div class="split-layout">
+    <div class="left-half"></div>
+ 
+    <div class="right-half">
+        <div class="signup-container">
+ 
+            <div class="logo-area">
+                <img src="assets/img/limlibrary.png" alt="Library Logo" />
+            </div>
+ 
+            <div class="page-label">NEW STUDENT REGISTRATION</div>
+ 
+            <form name="signup" method="post" onSubmit="return valid();">
+ 
+                <!-- Full Name -->
+                <div class="input-group-custom">
+                    <i class="fa fa-user left-icon"></i>
+                    <input type="text" name="fullanme" placeholder="Full Name" autocomplete="off" required />
+                </div>
+ 
+                <!-- Mobile Number -->
+                <div class="input-group-custom">
+                    <i class="fa fa-phone left-icon"></i>
+                    <input type="text" name="mobileno" placeholder="Mobile Number" maxlength="10" autocomplete="off" required />
+                </div>
+ 
+                <!-- Email -->
+                <div class="input-group-custom">
+                    <i class="fa fa-envelope left-icon"></i>
+                    <input type="email" name="email" id="emailid" placeholder="Email Address" onBlur="checkAvailability()" autocomplete="off" required />
+                    <span id="user-availability-status" class="email-status"></span>
+                    <span id="loaderIcon" style="display:none; font-size:11px; color:#888;">Checking...</span>
+                </div>
+ 
+                <!-- Password -->
+                <div class="input-group-custom">
+                    <i class="fa fa-unlock-alt left-icon"></i>
+                    <input type="password" name="password" id="password-field" placeholder="Password" autocomplete="off" required />
+                    <i class="fa fa-eye right-icon" onclick="togglePassword('password-field')"></i>
+                </div>
+ 
+                <!-- Confirm Password -->
+                <div class="input-group-custom">
+                    <i class="fa fa-lock left-icon"></i>
+                    <input type="password" name="confirmpassword" id="confirm-field" placeholder="Confirm Password" autocomplete="off" required />
+                    <i class="fa fa-eye right-icon" onclick="togglePassword('confirm-field')"></i>
+                </div>
+ 
+                <button type="submit" name="signup" class="btn-register">Register Now</button>
+                <a href="index.php" class="back-login">&#8592; Back to Login</a>
+ 
+            </form>
+ 
         </div>
     </div>
-    </div>
-     <!-- CONTENT-WRAPPER SECTION END-->
-    <?php include('includes/footer.php');?>
-    <script src="assets/js/jquery-1.10.2.js"></script>
-    <!-- BOOTSTRAP SCRIPTS  -->
-    <script src="assets/js/bootstrap.js"></script>
-      <!-- CUSTOM SCRIPTS  -->
-    <script src="assets/js/custom.js"></script>
+</div>
+ 
+<script src="assets/js/bootstrap.js"></script>
+<script src="assets/js/custom.js"></script>
 </body>
 </html>

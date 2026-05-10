@@ -196,20 +196,7 @@ foreach($results as $result)
 </div>
 </div>
 
-<div class="col-md-12"> 
-<div class="form-group">
-<label>Fine (in USD) :</label>
-<?php 
-if($result->fine=="")
-{?>
-<input class="form-control" type="text" name="fine" id="fine"  required />
 
-<?php }else {
-echo htmlentities($result->fine);
-}
-?>
-</div>
-</div>
  <?php if($result->RetrunStatus==0){?>
 
 <button type="submit" name="return" id="submit" class="btn btn-info">Return Book </button>

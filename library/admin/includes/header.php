@@ -8,7 +8,7 @@
                 </button>
                 <a class="navbar-brand">
 
-                    <img src="assets/img/logo.png" />
+                    <img src="../assets/img/limlibrary.png" style="max-height: 70px; width: auto; margin-top: -10px;" alt="Library Logo" />
                 </a>
 
             </div>

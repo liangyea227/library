@@ -14,15 +14,15 @@ $bookname=$_POST['bookname'];
 $category=$_POST['category'];
 $author=$_POST['author'];
 $isbn=$_POST['isbn'];
-$price=$_POST['price'];
+$details=$_POST['details'];
 $bookid=intval($_GET['bookid']);
 $bqty=$_POST['bqty'];
-$sql="update  tblbooks set BookName=:bookname,CatId=:category,AuthorId=:author,BookPrice=:price,bookQty=:bqty where id=:bookid";
+$sql="update  tblbooks set BookName=:bookname,CatId=:category,AuthorId=:author,BookDetails=:details,bookQty=:bqty where id=:bookid";
 $query = $dbh->prepare($sql);
 $query->bindParam(':bookname',$bookname,PDO::PARAM_STR);
 $query->bindParam(':category',$category,PDO::PARAM_STR);
 $query->bindParam(':author',$author,PDO::PARAM_STR);
-$query->bindParam(':price',$price,PDO::PARAM_STR);
+$query->bindParam(':details',$details,PDO::PARAM_STR);
 $query->bindParam(':bookid',$bookid,PDO::PARAM_STR);
 $query->bindParam(':bqty',$bqty,PDO::PARAM_STR);
 $query->execute();
@@ -58,7 +58,7 @@ echo "<script>window.location.href='manage-books.php'</script>";
          <div class="container">
         <div class="row pad-botm">
             <div class="col-md-12">
-                <h4 class="header-line">Add Book</h4>
+                <h4 class="header-line">Edit Book</h4>
                 
                             </div>
 
@@ -73,7 +73,7 @@ Book Info
 <form role="form" method="post">
 <?php 
 $bookid=intval($_GET['bookid']);
-$sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblcategory.id as cid,tblauthors.AuthorName,tblauthors.id as athrid,tblbooks.ISBNNumber,tblbooks.BookPrice,tblbooks.id as bookid,tblbooks.bookImage,bookQty from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId join tblauthors on tblauthors.id=tblbooks.AuthorId where tblbooks.id=:bookid";
+$sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblcategory.id as cid,tblauthors.AuthorName,tblauthors.id as athrid,tblbooks.ISBNNumber,tblbooks.BookDetails,tblbooks.id as bookid,tblbooks.bookImage,bookQty from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId join tblauthors on tblauthors.id=tblbooks.AuthorId where tblbooks.id=:bookid";
 $query = $dbh -> prepare($sql);
 $query->bindParam(':bookid',$bookid,PDO::PARAM_STR);
 $query->execute();
@@ -162,8 +162,8 @@ continue;
 
 <div class="col-md-6">
  <div class="form-group">
- <label>Price in USD<span style="color:red;">*</span></label>
- <input class="form-control" type="text" name="price" value="<?php echo htmlentities($result->BookPrice);?>"   required="required" />
+ <label>Details<span style="color:red;">*</span></label>
+ <input class="form-control" type="text" name="details" value="<?php echo htmlentities($result->BookDetails);?>"   required="required" />
  </div></div>
 <div class="col-md-6">  
  <div class="form-group">
