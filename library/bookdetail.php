@@ -114,67 +114,7 @@ if($myChk->rowCount() > 0) $alreadyBorrowed = true;
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --blue: #0000ff;
-            --blue-dark: #0000cc;
-            --blue-soft: #e8e8ff;
-            --text: #1a1a2e;
-            --text-muted: #6b6b80;
-            --border: #e2e2ee;
-            --bg: #f5f5fb;
-            --white: #ffffff;
-            --nav-h: 64px;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        /* ── NAVBAR ───────────────────────────────── */
-        .lim-nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: var(--nav-h);
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 100;
-            gap: 16px;
-        }
-        .nav-brand {
-            display: flex; align-items: center; gap: 10px;
-            text-decoration: none; min-width: 155px;
-        }
-        .nav-brand img { height: 36px; width: auto; }
-        .nav-brand-text { line-height: 1.1; }
-        .nav-brand-text span {
-            display: block; font-family: 'Playfair Display', serif;
-            font-size: 12px; color: var(--text); letter-spacing: 0.5px;
-        }
-        .nav-brand-text small {
-            font-size: 8px; letter-spacing: 2px;
-            color: var(--text-muted); text-transform: uppercase;
-        }
-        .nav-links {
-            display: flex; align-items: center; gap: 2px; margin-left: auto;
-        }
-        .nav-links a {
-            display: flex; align-items: center; gap: 6px;
-            padding: 8px 12px; border-radius: 8px;
-            font-size: 13px; font-weight: 500;
-            color: var(--text-muted); text-decoration: none; transition: all 0.2s;
-        }
-        .nav-links a:hover {
-            background: var(--blue-soft); color: var(--blue); text-decoration: none;
-        }
-        .nav-links a i { font-size: 15px; }
+     
 
         /* ── BREADCRUMB ───────────────────────────── */
         .breadcrumb-bar {
@@ -454,24 +394,7 @@ if($myChk->rowCount() > 0) $alreadyBorrowed = true;
 </head>
 <body>
 
-<!-- ══ NAVBAR ══════════════════════════════════════════════════ -->
-<nav class="lim-nav">
-    <a href="dashboard.php" class="nav-brand">
-        <img src="assets/img/limlibrary.png" alt="Lim Library" />
-        <div class="nav-brand-text">
-            <span>LIM LIBRARY</span>
-            <small>Gain More Knowledge</small>
-        </div>
-    </a>
-    <div class="nav-links">
-        <a href="dashboard.php"><i class="fa fa-home"></i> Home</a>
-        <a href="listed-books.php"><i class="fa fa-book"></i> Browse</a>
-        <a href="issued-books.php"><i class="fa fa-refresh"></i> Borrowing</a>
-        <a href="user-profile.php"><i class="fa fa-user"></i> Profile</a>
-        <a href="logout.php"><i class="fa fa-sign-out"></i> Logout</a>
-    </div>
-</nav>
-
+  <?php include('includes/header.php'); ?>
 <!-- ══ BREADCRUMB ══════════════════════════════════════════════ -->
 <div class="breadcrumb-bar">
     <nav>
