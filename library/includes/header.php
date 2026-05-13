@@ -135,15 +135,17 @@
         </div>
     </a>
 
+   <?php if(!empty($_SESSION['login'])): ?>
     <form method="get" action="dashboard.php" class="nav-search">
         <i class="fa fa-search srch-icon"></i>
         <input type="text" name="search" placeholder="Search books or authors…"
-               value="<?php echo isset($_GET['search']) ? htmlentities(trim($_GET['search'])) : ''; ?>"
-               autocomplete="off" />
-        <?php if(!empty($_GET['cat']))    echo '<input type="hidden" name="cat" value="'.(int)$_GET['cat'].'">'; ?>
-        <?php if(!empty($_GET['author'])) echo '<input type="hidden" name="author" value="'.(int)$_GET['author'].'">'; ?>
-        <button type="submit">Search</button>
+           value="<?php echo isset($_GET['search']) ? htmlentities(trim($_GET['search'])) : ''; ?>"
+           autocomplete="off" />
+    <?php if(!empty($_GET['cat']))    echo '<input type="hidden" name="cat" value="'.(int)$_GET['cat'].'">'; ?>
+    <?php if(!empty($_GET['author'])) echo '<input type="hidden" name="author" value="'.(int)$_GET['author'].'">'; ?>
+    <button type="submit">Search</button>
     </form>
+    <?php endif; ?>
 
     <div class="nav-links">
         <?php if(!empty($_SESSION['login'])): ?>
