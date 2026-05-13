@@ -148,8 +148,7 @@
     <div class="nav-links">
         <?php if(!empty($_SESSION['login'])): ?>
             <a href="dashboard.php"    <?php echo basename($_SERVER['PHP_SELF'])=='dashboard.php'    ? 'class="active"' : ''; ?>><i class="fa fa-home"></i><span> Home</span></a>
-            <a href="listed-books.php" <?php echo basename($_SERVER['PHP_SELF'])=='listed-books.php' ? 'class="active"' : ''; ?>><i class="fa fa-book"></i><span> Browse</span></a>
-            <a href="issued-books.php" <?php echo basename($_SERVER['PHP_SELF'])=='issued-books.php' ? 'class="active"' : ''; ?>><i class="fa fa-refresh"></i><span> Borrowing</span></a>
+            <a href="borrowed-books.php" <?php echo basename($_SERVER['PHP_SELF'])=='borrowed-books.php' ? 'class="active"' : ''; ?>><i class="fa fa-refresh"></i><span> Borrowing</span></a>
             <a href="my-profile.php"   <?php echo basename($_SERVER['PHP_SELF'])=='my-profile.php'   ? 'class="active"' : ''; ?>><i class="fa fa-user"></i><span> Profile</span></a>
             <a href="logout.php"><i class="fa fa-sign-out"></i><span> Logout</span></a>
         <?php else: ?>

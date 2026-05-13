@@ -276,17 +276,17 @@ if($filterAuthor > 0) foreach($authors as $a) { if($a->id == $filterAuthor) { $a
 
         <!-- Stats -->
         <div class="stats-row">
-            <a href="listed-books.php" class="stat-card">
+            <div class="stat-card">
                 <div class="stat-icon blue"><i class="fa fa-book"></i></div>
                 <div class="stat-info"><h3><?php echo (int)$listdbooks; ?></h3><p>Books Listed</p></div>
-            </a>
+            </div>
             <div class="stat-card">
                 <div class="stat-icon amber"><i class="fa fa-clock-o"></i></div>
                 <div class="stat-info"><h3><?php echo (int)$returnedbooks; ?></h3><p>Not Returned Yet</p></div>
             </div>
-            <a href="issued-books.php" class="stat-card">
+            <a href="borrowed-books.php" class="stat-card">
                 <div class="stat-icon green"><i class="fa fa-check-circle-o"></i></div>
-                <div class="stat-info"><h3><?php echo (int)$totalissuedbook; ?></h3><p>Total Issued Books</p></div>
+                <div class="stat-info"><h3><?php echo (int)$totalissuedbook; ?></h3><p>Total Books Borrowed</p></div>
             </a>
         </div>
 
