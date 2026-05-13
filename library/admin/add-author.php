@@ -2,99 +2,65 @@
 session_start();
 error_reporting(0);
 include('includes/config.php');
-if(strlen($_SESSION['alogin'])==0)
-    {   
-header('location:index.php');
-}
-else{ 
+if(strlen($_SESSION['alogin'])==0){
+  header('location:index.php');
+} else {
 
-if(isset($_POST['create']))
-{
-$author=$_POST['author'];
-$sql="INSERT INTO  tblauthors(AuthorName) VALUES(:author)";
-$query = $dbh->prepare($sql);
-$query->bindParam(':author',$author,PDO::PARAM_STR);
-$query->execute();
-$lastInsertId = $dbh->lastInsertId();
-if($lastInsertId)
-{
-$_SESSION['msg']="Author Listed successfully";
-header('location:manage-authors.php');
-}
-else 
-{
-$_SESSION['error']="Something went wrong. Please try again";
-header('location:manage-authors.php');
-}
-
+if(isset($_POST['create'])){
+  $author = $_POST['author'];
+  $sql="INSERT INTO tblauthors(AuthorName) VALUES(:author)";
+  $query=$dbh->prepare($sql);
+  $query->bindParam(':author',$author,PDO::PARAM_STR);
+  $query->execute();
+  if($dbh->lastInsertId()){
+    $_SESSION['msg']="Author listed successfully";
+    header('location:manage-authors.php');
+  } else {
+    $_SESSION['error']="Something went wrong. Please try again";
+    header('location:manage-authors.php');
+  }
 }
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Online Library Management System | Add Author</title>
-    <!-- BOOTSTRAP CORE STYLE  -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet" />
-    <!-- FONT AWESOME STYLE  -->
-    <link href="assets/css/font-awesome.css" rel="stylesheet" />
-    <!-- CUSTOM STYLE  -->
-    <link href="assets/css/style.css" rel="stylesheet" />
-    <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Library Admin | Add Author</title>
+  <link href="assets/css/style.css" rel="stylesheet"/>
 </head>
 <body>
-      <!------MENU SECTION START-->
-<?php include('includes/header.php');?>
-<!-- MENU SECTION END-->
-    <div class="content-wra
-    <div class="content-wrapper">
-         <div class="container">
-        <div class="row pad-botm">
-            <div class="col-md-12">
-                <h4 class="header-line">Add Author</h4>
-                
-                            </div>
+<?php include('includes/header.php'); ?>
 
-</div>
-<div class="row">
-<div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3"">
-<div class="panel panel-info">
-<div class="panel-heading">
-Author Info
-</div>
-<div class="panel-body">
-<form role="form" method="post">
-<div class="form-group">
-<label>Author Name</label>
-<input class="form-control" type="text" name="author" autocomplete="off"  required />
-</div>
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Add Author</h1>
+      <p class="page-subtitle">Register a new author in the system</p>
+    </div>
+    <a href="manage-authors.php" class="btn btn-primary">← Back to Authors</a>
+  </div>
 
-<button type="submit" name="create" class="btn btn-info">Add </button>
-
-                                    </form>
-                            </div>
-                        </div>
-                            </div>
-
+  <div class="card card-narrow">
+    <div class="card-header">
+      <span class="card-title">Author Information</span>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        <div class="form-group">
+          <label>Author Name <span class="req">*</span></label>
+          <input type="text" name="author" autocomplete="off" required/>
         </div>
-   
+        <div class="form-actions">
+          <button type="submit" name="create" class="btn btn-gold">Add Author</button>
+          <a href="manage-authors.php" class="btn btn-primary">Cancel</a>
+        </div>
+      </form>
     </div>
-    </div>
-     <!-- CONTENT-WRAPPER SECTION END-->
-  <?php include('includes/footer.php');?>
-      <!-- FOOTER SECTION END-->
-    <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
-    <!-- CORE JQUERY  -->
-    <script src="assets/js/jquery-1.10.2.js"></script>
-    <!-- BOOTSTRAP SCRIPTS  -->
-    <script src="assets/js/bootstrap.js"></script>
-      <!-- CUSTOM SCRIPTS  -->
-    <script src="assets/js/custom.js"></script>
+  </div>
+</div>
+
+<?php include('includes/footer.php'); ?>
 </body>
 </html>
 <?php } ?>

@@ -2,114 +2,78 @@
 session_start();
 error_reporting(0);
 include('includes/config.php');
-if(strlen($_SESSION['alogin'])==0)
-    {   
-header('location:index.php');
-}
-else{ 
+if(strlen($_SESSION['alogin'])==0){
+  header('location:index.php');
+} else {
 
-if(isset($_POST['create']))
-{
-$category=$_POST['category'];
-$status=$_POST['status'];
-$sql="INSERT INTO  tblcategory(CategoryName,Status) VALUES(:category,:status)";
-$query = $dbh->prepare($sql);
-$query->bindParam(':category',$category,PDO::PARAM_STR);
-$query->bindParam(':status',$status,PDO::PARAM_STR);
-$query->execute();
-$lastInsertId = $dbh->lastInsertId();
-if($lastInsertId)
-{
-$_SESSION['msg']="Brand Listed successfully";
-header('location:manage-categories.php');
-}
-else 
-{
-$_SESSION['error']="Something went wrong. Please try again";
-header('location:manage-categories.php');
-}
-
+if(isset($_POST['create'])){
+  $category = $_POST['category'];
+  $status   = $_POST['status'];
+  $sql="INSERT INTO tblcategory(CategoryName,Status) VALUES(:category,:status)";
+  $query=$dbh->prepare($sql);
+  $query->bindParam(':category',$category,PDO::PARAM_STR);
+  $query->bindParam(':status',$status,PDO::PARAM_STR);
+  $query->execute();
+  if($dbh->lastInsertId()){
+    $_SESSION['msg']="Category created successfully";
+    header('location:manage-categories.php');
+  } else {
+    $_SESSION['error']="Something went wrong. Please try again";
+    header('location:manage-categories.php');
+  }
 }
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Online Library Management System | Add Categories</title>
-    <!-- BOOTSTRAP CORE STYLE  -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet" />
-    <!-- FONT AWESOME STYLE  -->
-    <link href="assets/css/font-awesome.css" rel="stylesheet" />
-    <!-- CUSTOM STYLE  -->
-    <link href="assets/css/style.css" rel="stylesheet" />
-    <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Library Admin | Add Category</title>
+  <link href="assets/css/style.css" rel="stylesheet"/>
 </head>
 <body>
-      <!------MENU SECTION START-->
-<?php include('includes/header.php');?>
-<!-- MENU SECTION END-->
-    <div class="content-wra
-    <div class="content-wrapper">
-         <div class="container">
-        <div class="row pad-botm">
-            <div class="col-md-12">
-                <h4 class="header-line">Add category</h4>
-                
-                            </div>
+<?php include('includes/header.php'); ?>
 
-</div>
-<div class="row">
-<div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3"">
-<div class="panel panel-info">
-<div class="panel-heading">
-Category Info
-</div>
-<div class="panel-body">
-<form role="form" method="post">
-<div class="form-group">
-<label>Category Name</label>
-<input class="form-control" type="text" name="category" autocomplete="off" required />
-</div>
-<div class="form-group">
-<label>Status</label>
- <div class="radio">
-<label>
-<input type="radio" name="status" id="status" value="1" checked="checked">Active
-</label>
-</div>
-<div class="radio">
-<label>
-<input type="radio" name="status" id="status" value="0">Inactive
-</label>
-</div>
+<div class="page-wrapper">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Add Category</h1>
+      <p class="page-subtitle">Create a new book category</p>
+    </div>
+    <a href="manage-categories.php" class="btn btn-primary">← Back to Categories</a>
+  </div>
 
-</div>
-<button type="submit" name="create" class="btn btn-info">Create </button>
-
-                                    </form>
-                            </div>
-                        </div>
-                            </div>
-
+  <div class="card card-narrow">
+    <div class="card-header">
+      <span class="card-title">Category Information</span>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        <div class="form-group">
+          <label>Category Name <span class="req">*</span></label>
+          <input type="text" name="category" autocomplete="off" required/>
         </div>
-   
+        <div class="form-group mt-12">
+          <label>Status</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="status" value="1" checked/> Active
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="status" value="0"/> Inactive
+            </label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" name="create" class="btn btn-gold">Create Category</button>
+          <a href="manage-categories.php" class="btn btn-primary">Cancel</a>
+        </div>
+      </form>
     </div>
-    </div>
-     <!-- CONTENT-WRAPPER SECTION END-->
-  <?php include('includes/footer.php');?>
-      <!-- FOOTER SECTION END-->
-    <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
-    <!-- CORE JQUERY  -->
-    <script src="assets/js/jquery-1.10.2.js"></script>
-    <!-- BOOTSTRAP SCRIPTS  -->
-    <script src="assets/js/bootstrap.js"></script>
-      <!-- CUSTOM SCRIPTS  -->
-    <script src="assets/js/custom.js"></script>
+  </div>
+</div>
+
+<?php include('includes/footer.php'); ?>
 </body>
 </html>
 <?php } ?>
