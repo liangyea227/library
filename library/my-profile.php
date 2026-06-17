@@ -309,6 +309,31 @@ $activeTab = (isset($_POST['change']) || $pwdError) ? 'password' : 'profile';
         .btn-submit:hover { background: var(--blue-dark); transform: translateY(-1px); }
         .btn-submit i { font-size: 14px; }
 
+        /* ── PASSWORD TOGGLE ─────────────────────── */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper input {
+            padding-right: 42px !important;
+        }
+        .toggle-pwd {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-pwd:hover { color: var(--blue); }
+
         /* ── PASSWORD STRENGTH ────────────────────── */
         .strength-bar {
             height: 4px;
@@ -470,21 +495,35 @@ $activeTab = (isset($_POST['change']) || $pwdError) ? 'password' : 'profile';
                         <div class="field-row full">
                             <div class="field-group">
                                 <label>Current Password</label>
-                                <input type="password" name="password" autocomplete="off" required />
+                                <div class="input-wrapper">
+                                    <input type="password" name="password" id="pwd-current" autocomplete="off" required />
+                                    <button type="button" class="toggle-pwd" onclick="togglePwd('pwd-current', this)" tabindex="-1" aria-label="Show password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="field-row">
                             <div class="field-group">
                                 <label>New Password</label>
-                                <input type="password" name="newpassword" id="newpassword"
-                                       autocomplete="off" required oninput="checkStrength(this.value)" />
+                                <div class="input-wrapper">
+                                    <input type="password" name="newpassword" id="newpassword"
+                                           autocomplete="off" required oninput="checkStrength(this.value)" />
+                                    <button type="button" class="toggle-pwd" onclick="togglePwd('newpassword', this)" tabindex="-1" aria-label="Show password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
                                 <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
                                 <span class="strength-label" id="strengthLabel">Enter a new password</span>
                             </div>
                             <div class="field-group">
                                 <label>Confirm New Password</label>
-                                <input type="password" name="confirmpassword" id="confirmpassword"
-                                       autocomplete="off" required />
+                                <div class="input-wrapper">
+                                    <input type="password" name="confirmpassword" id="confirmpassword" autocomplete="off" required />
+                                    <button type="button" class="toggle-pwd" onclick="togglePwd('confirmpassword', this)" tabindex="-1" aria-label="Show password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <button type="submit" name="change" class="btn-submit">
@@ -545,6 +584,22 @@ function checkStrength(val) {
     label.textContent     = c.text;
     label.style.color     = c.bg || 'var(--text-muted)';
 }
+
+// Show / hide password toggle
+function togglePwd(inputId, btn) {
+    var input = document.getElementById(inputId);
+    var icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+        btn.setAttribute('aria-label', 'Hide password');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+        btn.setAttribute('aria-label', 'Show password');
+    }
+}
 </script>
+<script src="assets/js/librarybot.js"></script>
 </body>
 </html>

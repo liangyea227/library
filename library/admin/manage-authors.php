@@ -6,7 +6,15 @@ if(strlen($_SESSION['alogin'])==0){
   header('location:index.php');
 } else {
 
+// Generate CSRF token for this session
+if(empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+
 if(isset($_GET['del'])){
+  // CSRF check
+  if(!isset($_GET['tok']) || $_GET['tok'] !== $_SESSION['csrf_token']){
+    $_SESSION['delmsg']='Invalid request.';
+    header('location:manage-authors.php'); exit;
+  }
   $id=$_GET['del'];
   $sql="DELETE FROM tblauthors WHERE id=:id";
   $query=$dbh->prepare($sql); $query->bindParam(':id',$id,PDO::PARAM_STR); $query->execute();
@@ -75,7 +83,7 @@ if(isset($_GET['del'])){
               <td>
                 <div class="action-group">
                   <a href="edit-author.php?athrid=<?php echo htmlentities($result->id); ?>" class="btn btn-success btn-sm">✏️ Edit</a>
-                  <a href="manage-authors.php?del=<?php echo htmlentities($result->id); ?>"
+                  <a href="manage-authors.php?del=<?php echo htmlentities($result->id); ?>&tok=<?php echo $_SESSION["csrf_token"]; ?>"
                      onclick="return confirm('Delete this author?')" class="btn btn-danger btn-sm">🗑️ Delete</a>
                 </div>
               </td>

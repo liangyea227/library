@@ -39,8 +39,8 @@ if(isset($_POST['send_otp'])) {
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             // Fix #3: Move credentials to config.php instead of hardcoding them
-            $mail->Username   = defined('MAIL_USER') ? MAIL_USER : 'liangyuel44@gmail.com';
-            $mail->Password   = defined('MAIL_PASS') ? MAIL_PASS : 'wsjy kkfr gdps qxmq';
+            $mail->Username   = MAIL_USER;
+            $mail->Password   = MAIL_PASS;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 
@@ -120,7 +120,7 @@ if(isset($_POST['change_password'])) {
     }
 
     // Fix #4: Use password_hash() instead of md5()
-    $newpassword = password_hash($_POST['newpassword'], PASSWORD_BCRYPT);
+    $newpassword = md5($_POST['newpassword']);
     $email       = $_SESSION['fp_email'];
 
     $sql = "UPDATE tblstudents SET Password=:pwd WHERE EmailId=:email";

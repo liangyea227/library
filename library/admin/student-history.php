@@ -4,7 +4,15 @@ error_reporting(0);
 include('includes/config.php');
 if(strlen($_SESSION['alogin'])==0){
   header('location:index.php');
-} else { ?>
+} else {
+
+// FIX: Validate and sanitize $sid before use — use prepared statement
+$sid = isset($_GET['stdid']) ? trim($_GET['stdid']) : '';
+if($sid === ''){
+  header('location:reg-students.php');
+  exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,8 +25,7 @@ if(strlen($_SESSION['alogin'])==0){
 <body>
 <?php include('includes/header.php'); ?>
 
-<?php $sid=$_GET['stdid']; ?>
-
+<?php // FIX: sid displayed safely ?>
 <div class="page-wrapper">
   <div class="page-header">
     <div>
@@ -48,15 +55,18 @@ if(strlen($_SESSION['alogin'])==0){
           </thead>
           <tbody>
           <?php
-            $sql="SELECT tblstudents.StudentId,tblstudents.FullName,tblbooks.BookName,
-                         tblissuedbookdetails.IssuesDate,tblissuedbookdetails.ReturnDate,
-                         tblissuedbookdetails.fine,tblissuedbookdetails.RetrunStatus
-                  FROM tblissuedbookdetails
-                  JOIN tblstudents ON tblstudents.StudentId=tblissuedbookdetails.StudentId
-                  JOIN tblbooks    ON tblbooks.id=tblissuedbookdetails.BookId
-                  WHERE tblstudents.StudentId='$sid'";
-            $query=$dbh->prepare($sql); $query->execute();
-            $cnt=1;
+            // FIX: Use parameterized query — no more direct string interpolation
+            $sql = "SELECT tblstudents.StudentId, tblstudents.FullName, tblbooks.BookName,
+                           tblissuedbookdetails.IssuesDate, tblissuedbookdetails.ReturnDate,
+                           tblissuedbookdetails.fine, tblissuedbookdetails.RetrunStatus
+                    FROM tblissuedbookdetails
+                    JOIN tblstudents ON tblstudents.StudentId = tblissuedbookdetails.StudentID
+                    JOIN tblbooks    ON tblbooks.id = tblissuedbookdetails.BookId
+                    WHERE tblstudents.StudentId = :sid";
+            $query = $dbh->prepare($sql);
+            $query->bindParam(':sid', $sid, PDO::PARAM_STR);
+            $query->execute();
+            $cnt = 1;
             foreach($query->fetchAll(PDO::FETCH_OBJ) as $result): ?>
             <tr>
               <td><?php echo htmlentities($cnt); ?></td>

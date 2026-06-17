@@ -1,0 +1,34 @@
+# ============================================================
+#  Lim Library  -  Python Requirements (ALL-IN-ONE)
+#  Covers both AI features:
+#    - AI Chatbot        (chatbot/chatbot.py)         port 5000
+#    - Book Cover Search (image_search/image_search_api.py) port 5001
+#
+#  HOW TO INSTALL ON WINDOWS:
+#    Step 1:  pip install -r requirements.txt
+#    Step 2:  pip install spacy --prefer-binary
+#    Step 3:  python -m spacy download en_core_web_sm
+# ============================================================
+
+# Shared - web framework
+flask==3.0.3
+flask-cors==4.0.1
+
+# Chatbot - NLP and database
+mysql-connector-python==8.4.0
+python-dotenv==1.0.1
+rapidfuzz==3.9.3
+
+# spaCy - installed separately with --prefer-binary to avoid build errors on Windows
+# Run:  pip install spacy --prefer-binary
+# Then: python -m spacy download en_core_web_sm
+# NOTE: chatbot still works without spaCy (fuzzy matching handles it)
+
+# Image Search - CNN and database
+tensorflow>=2.15.0
+pillow>=10.0.0
+pymysql>=1.1.0
+numpy>=1.24.0
+
+# Fix for Windows: if pymysql is missing, run:
+#   pip install pymysql

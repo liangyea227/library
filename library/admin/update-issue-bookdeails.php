@@ -11,7 +11,7 @@ if(isset($_POST['return'])){
   $fine=$_POST['fine'];
   $rstatus=1;
   $bookid=$_POST['bookid'];
-  $sql="UPDATE tblissuedbookdetails SET fine=:fine,RetrunStatus=:rstatus WHERE id=:rid";
+  $sql="UPDATE tblissuedbookdetails SET fine=:fine,RetrunStatus=:rstatus,ReturnDate=NOW() WHERE id=:rid";
   $query=$dbh->prepare($sql);
   $query->bindParam(':rid',$rid,PDO::PARAM_STR);
   $query->bindParam(':fine',$fine,PDO::PARAM_STR);

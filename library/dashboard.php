@@ -225,8 +225,7 @@ if($filterAuthor > 0) foreach($authors as $a) { if($a->id == $filterAuthor) { $a
         }
     </style>
 </head>
-<body>
-
+<body data-student-id="<?php echo htmlspecialchars($_SESSION['stdid'] ?? ''); ?>">
 <!-- ══ PAGE LAYOUT ═════════════════════════════════════════════ -->
 <div class="page-layout">
 
@@ -385,5 +384,7 @@ function singleCheck(clicked, groupName) {
     });
 }
 </script>
+<script src="assets/js/librarybot.js"></script>
+<?php include('includes/footer.php'); ?>
 </body>
 </html>

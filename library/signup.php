@@ -2,40 +2,47 @@
 session_start();
 include('includes/config.php');
 error_reporting(0);
+
 if(isset($_POST['signup']))
 {
- 
-//Code for student ID
-$count_my_page = ("studentid.txt");
-$hits = file($count_my_page);
-$hits[0] ++;
-$fp = fopen($count_my_page , "w");
-fputs($fp , "$hits[0]");
-fclose($fp); 
-$StudentId= $hits[0];   
-$fname=$_POST['fullanme'];
-$mobileno=$_POST['mobileno'];
-$email=$_POST['email']; 
-$password=md5($_POST['password']); 
-$status=1;
-$sql="INSERT INTO  tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,:fname,:mobileno,:email,:password,:status)";
-$query = $dbh->prepare($sql);
-$query->bindParam(':StudentId',$StudentId,PDO::PARAM_STR);
-$query->bindParam(':fname',$fname,PDO::PARAM_STR);
-$query->bindParam(':mobileno',$mobileno,PDO::PARAM_STR);
-$query->bindParam(':email',$email,PDO::PARAM_STR);
-$query->bindParam(':password',$password,PDO::PARAM_STR);
-$query->bindParam(':status',$status,PDO::PARAM_STR);
-$query->execute();
-$lastInsertId = $dbh->lastInsertId();
-if($lastInsertId)
-{
-echo '<script>alert("Your Registration successfull and your student id is  "+"'.$StudentId.'")</script>';
-}
-else 
-{
-echo "<script>alert('Something went wrong. Please try again');</script>";
-}
+    // FIX: Generate StudentId from DB (auto-increment style) instead of file read
+    // This avoids crash when studentid.txt is missing
+    $sql_maxid = "SELECT MAX(CAST(SUBSTRING(StudentId, 4) AS UNSIGNED)) as maxnum FROM tblstudents";
+    $q_maxid   = $dbh->prepare($sql_maxid);
+    $q_maxid->execute();
+    $row_maxid  = $q_maxid->fetch(PDO::FETCH_OBJ);
+    $nextnum    = ($row_maxid && $row_maxid->maxnum) ? ((int)$row_maxid->maxnum + 1) : 1001;
+    $StudentId  = 'SID' . str_pad($nextnum, 3, '0', STR_PAD_LEFT);
+
+    $fname    = $_POST['fullanme'];   // kept as-is (form name matches)
+    $mobileno = $_POST['mobileno'];
+    $email    = $_POST['email']; 
+    $password = md5($_POST['password']); 
+    $status   = 1;
+
+    // Check email not already registered
+    $chk = $dbh->prepare("SELECT id FROM tblstudents WHERE EmailId=:email");
+    $chk->bindParam(':email', $email, PDO::PARAM_STR);
+    $chk->execute();
+    if($chk->rowCount() > 0){
+        echo "<script>alert('This email is already registered. Please use a different email.');</script>";
+    } else {
+        $sql   = "INSERT INTO tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,:fname,:mobileno,:email,:password,:status)";
+        $query = $dbh->prepare($sql);
+        $query->bindParam(':StudentId', $StudentId, PDO::PARAM_STR);
+        $query->bindParam(':fname',     $fname,     PDO::PARAM_STR);
+        $query->bindParam(':mobileno',  $mobileno,  PDO::PARAM_STR);
+        $query->bindParam(':email',     $email,     PDO::PARAM_STR);
+        $query->bindParam(':password',  $password,  PDO::PARAM_STR);
+        $query->bindParam(':status',    $status,    PDO::PARAM_STR);
+        $query->execute();
+        $lastInsertId = $dbh->lastInsertId();
+        if($lastInsertId){
+            echo '<script>alert("Your Registration successful and your student ID is ' . $StudentId . '")</script>';
+        } else {
+            echo "<script>alert('Something went wrong. Please try again');</script>";
+        }
+    }
 }
 ?>
 <!DOCTYPE html>

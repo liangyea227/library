@@ -8,26 +8,6 @@ if(strlen($_SESSION['login'])==0) {
 }
 
 $sid = $_SESSION['stdid'];
-$returnMsg   = '';
-$returnError = '';
-
-// Handle Return Book
-if(isset($_POST['return_book'])) {
-    $rid = (int)$_POST['rid'];
-    $returnDate = date('Y-m-d');
-    $sql = "UPDATE tblissuedbookdetails SET ReturnDate=:returnDate, RetrunStatus=1, fine=0 
-            WHERE id=:rid AND StudentId=:sid";
-    $query = $dbh->prepare($sql);
-    $query->bindParam(':returnDate', $returnDate, PDO::PARAM_STR);
-    $query->bindParam(':rid',        $rid,         PDO::PARAM_INT);
-    $query->bindParam(':sid',        $sid,         PDO::PARAM_STR);
-    $query->execute();
-    if($query->rowCount() > 0) {
-        $returnMsg = 'Book returned successfully on ' . date('d M Y') . '.';
-    } else {
-        $returnError = 'Unable to return the book. Please try again.';
-    }
-}
 
 // Fetch Issued Books
 $sql = "SELECT tblbooks.BookName, tblbooks.ISBNNumber,
@@ -37,7 +17,7 @@ $sql = "SELECT tblbooks.BookName, tblbooks.ISBNNumber,
                tblissuedbookdetails.id as rid,
                tblissuedbookdetails.fine
         FROM tblissuedbookdetails
-        JOIN tblstudents ON tblstudents.StudentId = tblissuedbookdetails.StudentId
+        JOIN tblstudents ON tblstudents.StudentId = tblissuedbookdetails.StudentID
         JOIN tblbooks    ON tblbooks.id            = tblissuedbookdetails.BookId
         WHERE tblstudents.StudentId = :sid
         ORDER BY tblissuedbookdetails.id DESC";
@@ -50,8 +30,8 @@ $totalBorrowed = count($results);
 $notReturned   = 0;
 $returned      = 0;
 foreach($results as $r) {
-    if($r->ReturnDate == '' || $r->RetrunStatus == 0 || $r->RetrunStatus === null) $notReturned++;
-    else $returned++;
+    if($r->RetrunStatus == 1 && !empty($r->ReturnDate)) $returned++;
+    else $notReturned++;
 }
 ?>
 <!DOCTYPE html>
@@ -70,7 +50,7 @@ foreach($results as $r) {
         .borrow-page { padding-top: var(--nav-h); min-height: 100vh; }
         .borrow-container { max-width: 1000px; margin: 0 auto; padding: 36px 24px 60px; }
 
-        /* Page Title */
+        /* Page title */
         .page-title { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
         .page-title-icon {
             width: 48px; height: 48px; border-radius: 14px;
@@ -80,7 +60,16 @@ foreach($results as $r) {
         .page-title h1 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--text); font-weight: 600; }
         .page-title p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-        /* Stat Cards */
+        /* Info notice */
+        .admin-notice {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+            background: #fffbea; color: #92400e; border: 1px solid #fde68a;
+            margin-bottom: 20px;
+        }
+        .admin-notice i { font-size: 16px; flex-shrink: 0; color: #d97706; }
+
+        /* Stats */
         .stats-row { display: flex; gap: 14px; margin-bottom: 28px; }
         .stat-card {
             flex: 1; background: var(--white); border: 1px solid var(--border);
@@ -93,16 +82,7 @@ foreach($results as $r) {
         .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
         .stat-value { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.1; }
 
-        /* Alerts */
-        .alert-success, .alert-error {
-            display: flex; align-items: flex-start; gap: 10px;
-            padding: 13px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; margin-bottom: 20px;
-        }
-        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .alert-error   { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .alert-success i, .alert-error i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-        /* Main Card */
+        /* Table card */
         .main-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
         .card-header {
             padding: 18px 24px; border-bottom: 1px solid var(--border);
@@ -116,7 +96,6 @@ foreach($results as $r) {
             border-radius: 20px; background: var(--blue-soft); color: var(--blue); letter-spacing: 0.3px;
         }
 
-        /* Table */
         .table-wrap { overflow-x: auto; }
         table.borrow-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .borrow-table thead tr { background: var(--bg); border-bottom: 1px solid var(--border); }
@@ -129,7 +108,6 @@ foreach($results as $r) {
         .borrow-table tbody tr:hover { background: #fafafe; }
         .borrow-table td { padding: 14px 16px; vertical-align: middle; color: var(--text); }
 
-        /* Book Cell */
         .book-cell { display: flex; align-items: center; gap: 12px; }
         .book-thumb {
             width: 36px; height: 36px; background: var(--blue-soft); border-radius: 8px;
@@ -138,7 +116,6 @@ foreach($results as $r) {
         .book-name { font-weight: 600; font-size: 13px; color: var(--text); }
         .book-isbn { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* Status Badges */
         .status-badge {
             display: inline-flex; align-items: center; gap: 5px;
             font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 4px 10px; border-radius: 20px;
@@ -147,18 +124,16 @@ foreach($results as $r) {
         .status-badge.returned { background: #e8f5e9; color: #2e7d32; }
         .status-badge i { font-size: 10px; }
 
-        /* Return Button */
-        .btn-return {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 7px 14px; background: var(--blue); color: #fff;
-            border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
-            font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s, transform 0.1s;
+        /* Admin-only tag shown in action column */
+        .admin-only-tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; color: var(--text-muted);
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 6px; padding: 4px 10px;
         }
-        .btn-return:hover { background: var(--blue-dark); transform: translateY(-1px); }
-        .btn-return:active { transform: translateY(0); }
-        .btn-return i { font-size: 12px; }
+        .admin-only-tag i { font-size: 10px; }
 
-        /* Empty State */
+        /* Empty state */
         .empty-state { text-align: center; padding: 60px 24px; }
         .empty-icon {
             width: 72px; height: 72px; background: var(--blue-soft); border-radius: 50%;
@@ -185,16 +160,14 @@ foreach($results as $r) {
 <div class="borrow-page">
 <div class="borrow-container">
 
-    <!-- Page Title -->
     <div class="page-title">
         <div class="page-title-icon"><i class="fa fa-book"></i></div>
         <div>
             <h1>My Borrowed Books</h1>
-            <p>Track and manage your book borrowing history</p>
+            <p>Track your book borrowing history</p>
         </div>
     </div>
 
-    <!-- Stat Cards -->
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-icon blue"><i class="fa fa-book"></i></div>
@@ -219,21 +192,13 @@ foreach($results as $r) {
         </div>
     </div>
 
-    <!-- Alerts -->
-    <?php if($returnMsg): ?>
-    <div class="alert-success">
-        <i class="fa fa-check-circle"></i>
-        <?php echo htmlentities($returnMsg); ?>
-    </div>
-    <?php endif; ?>
-    <?php if($returnError): ?>
-    <div class="alert-error">
-        <i class="fa fa-exclamation-circle"></i>
-        <?php echo htmlentities($returnError); ?>
+    <?php if($notReturned > 0): ?>
+    <div class="admin-notice">
+        <i class="fa fa-info-circle"></i>
+        To return a book, please visit the library counter. Book returns are processed by library staff only.
     </div>
     <?php endif; ?>
 
-    <!-- Table Card -->
     <div class="main-card">
         <div class="card-header">
             <div class="card-header-left">
@@ -253,12 +218,11 @@ foreach($results as $r) {
                         <th>Borrow Date</th>
                         <th>Return Date</th>
                         <th>Status</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                <?php $cnt = 1; foreach($results as $result): 
-                    $isReturned = ($result->ReturnDate != '' && $result->RetrunStatus == 1);
+                <?php $cnt = 1; foreach($results as $result):
+                    $isReturned = ($result->RetrunStatus == 1 && !empty($result->ReturnDate));
                 ?>
                     <tr>
                         <td style="color:var(--text-muted); font-size:12px;"><?php echo $cnt; ?></td>
@@ -286,18 +250,6 @@ foreach($results as $r) {
                                 <span class="status-badge returned"><i class="fa fa-check"></i> Returned</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <?php if(!$isReturned): ?>
-                                <form method="post" action="" style="margin:0;" onsubmit="return confirm('Return this book?');">
-                                    <input type="hidden" name="rid" value="<?php echo (int)$result->rid; ?>" />
-                                    <button type="submit" name="return_book" class="btn-return">
-                                        <i class="fa fa-undo"></i> Return
-                                    </button>
-                                </form>
-                            <?php else: ?>
-                                <span style="font-size:12px; color:var(--text-muted);">—</span>
-                            <?php endif; ?>
-                        </td>
                     </tr>
                 <?php $cnt++; endforeach; ?>
                 </tbody>
@@ -319,5 +271,6 @@ foreach($results as $r) {
 <?php include('includes/footer.php'); ?>
 <script src="assets/js/jquery-1.10.2.js"></script>
 <script src="assets/js/bootstrap.js"></script>
+<script src="assets/js/librarybot.js"></script>
 </body>
 </html>

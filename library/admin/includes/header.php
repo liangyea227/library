@@ -86,6 +86,7 @@
       <ul class="dropdown-menu">
         <li><a href="issue-book.php"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14"/></svg> Issue New Book</a></li>
         <li><a href="manage-issued-books.php"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M1 4h14M1 8h10M1 12h7"/></svg> Manage Issued Books</a></li>
+        <li><a href="overdue-books.php" style="color:#c0533a;"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2v5l3 2-1 1.5L7 9.5V3h1z"/></svg> ⚠️ Overdue Books</a></li>
       </ul>
     </div>
 

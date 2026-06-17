@@ -6,13 +6,17 @@ if(strlen($_SESSION['alogin'])==0){
   header('location:index.php');
 } else {
 
+if(empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+
 if(isset($_GET['inid'])){
+  if(!isset($_GET['tok']) || $_GET['tok'] !== $_SESSION['csrf_token']){ header('location:reg-students.php'); exit; }
   $id=$_GET['inid']; $status=0;
   $sql="UPDATE tblstudents SET Status=:status WHERE id=:id";
   $q=$dbh->prepare($sql); $q->bindParam(':id',$id,PDO::PARAM_STR); $q->bindParam(':status',$status,PDO::PARAM_STR); $q->execute();
   header('location:reg-students.php');
 }
 if(isset($_GET['id'])){
+  if(!isset($_GET['tok']) || $_GET['tok'] !== $_SESSION['csrf_token']){ header('location:reg-students.php'); exit; }
   $id=$_GET['id']; $status=1;
   $sql="UPDATE tblstudents SET Status=:status WHERE id=:id";
   $q=$dbh->prepare($sql); $q->bindParam(':id',$id,PDO::PARAM_STR); $q->bindParam(':status',$status,PDO::PARAM_STR); $q->execute();
@@ -81,10 +85,10 @@ if(isset($_GET['id'])){
               <td>
                 <div class="action-group">
                   <?php if($result->Status==1): ?>
-                    <a href="reg-students.php?inid=<?php echo htmlentities($result->id); ?>"
+                    <a href="reg-students.php?inid=<?php echo htmlentities($result->id); ?>&tok=<?php echo $_SESSION["csrf_token"]; ?>"
                        onclick="return confirm('Block this student?')" class="btn btn-danger btn-sm">Block</a>
                   <?php else: ?>
-                    <a href="reg-students.php?id=<?php echo htmlentities($result->id); ?>"
+                    <a href="reg-students.php?id=<?php echo htmlentities($result->id); ?>&tok=<?php echo $_SESSION["csrf_token"]; ?>"
                        onclick="return confirm('Activate this student?')" class="btn btn-success btn-sm">Activate</a>
                   <?php endif; ?>
                   <a href="student-history.php?stdid=<?php echo htmlentities($result->StudentId); ?>" class="btn btn-primary btn-sm">Details</a>

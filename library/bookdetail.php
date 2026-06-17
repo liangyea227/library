@@ -2,6 +2,9 @@
 session_start();
 error_reporting(0);
 include('includes/config.php');
+require_once __DIR__ . '/vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 if(strlen($_SESSION['login'])==0)
 { 
     header('location:index.php');
@@ -21,6 +24,20 @@ $borrowMsg = '';
 $borrowMsgType = '';
 
 if(isset($_POST['borrow'])) {
+    // ── LIMIT CHECK: max 3 unreturned books per student ──────────
+    $limitSql = $dbh->prepare("SELECT COUNT(*) FROM tblissuedbookdetails
+        WHERE StudentID = :sid
+        AND (RetrunStatus = 0 OR RetrunStatus IS NULL OR RetrunStatus = '')");
+    $limitSql->bindParam(':sid', $sid, PDO::PARAM_STR);
+    $limitSql->execute();
+    $activeBorrows = (int)$limitSql->fetchColumn();
+
+    if($activeBorrows >= 3) {
+        $borrowMsg = 'You have reached the maximum borrowing limit of 3 books. Please return a book before borrowing another.';
+        $borrowMsgType = 'error';
+    } else {
+    // ─────────────────────────────────────────────────────────────
+
     // Check if student already has this book and hasn't returned it
     $chkSql = $dbh->prepare("SELECT id FROM tblissuedbookdetails 
         WHERE BookId=:bid AND StudentID=:sid 
@@ -61,12 +78,74 @@ if(isset($_POST['borrow'])) {
             if($dbh->lastInsertId()) {
                 $borrowMsg = 'Book borrowed successfully! Please return it on time.';
                 $borrowMsgType = 'success';
+
+                // ── Send borrow confirmation email ──────────────────
+                try {
+                    $stSql = $dbh->prepare("SELECT FullName, EmailId FROM tblstudents WHERE StudentId = :sid LIMIT 1");
+                    $stSql->bindParam(':sid', $sid, PDO::PARAM_STR);
+                    $stSql->execute();
+                    $stRow = $stSql->fetch(PDO::FETCH_OBJ);
+
+                    $bkSql = $dbh->prepare("SELECT BookName, ISBNNumber FROM tblbooks WHERE id = :bid LIMIT 1");
+                    $bkSql->bindParam(':bid', $bookid, PDO::PARAM_INT);
+                    $bkSql->execute();
+                    $bkRow = $bkSql->fetch(PDO::FETCH_OBJ);
+
+                    if($stRow && !empty($stRow->EmailId)) {
+                        $mail = new PHPMailer(true);
+                        $mail->isSMTP();
+                        $mail->Host       = 'smtp.gmail.com';
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = MAIL_USER;
+                        $mail->Password   = MAIL_PASS;
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = 587;
+
+                        $mail->setFrom($mail->Username, 'Lim Library');
+                        $mail->addAddress($stRow->EmailId, $stRow->FullName);
+                        $mail->isHTML(true);
+                        $mail->CharSet = 'UTF-8';
+                        $mail->Subject = 'Book Borrowed – ' . $bkRow->BookName;
+                        $mail->Body = '
+                        <div style="font-family:DM Sans,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#f5f5fb;border-radius:16px;">
+                          <div style="text-align:center;margin-bottom:24px;">
+                            <div style="display:inline-block;background:#0000ff;color:#fff;border-radius:12px;padding:12px 20px;font-size:20px;font-weight:700;letter-spacing:1px;">LIM LIBRARY</div>
+                          </div>
+                          <div style="background:#fff;border-radius:12px;padding:28px 24px;border:1px solid #e2e2ee;">
+                            <p style="font-size:15px;color:#1a1a2e;font-weight:600;margin:0 0 8px;">Hi ' . htmlspecialchars($stRow->FullName) . ',</p>
+                            <p style="font-size:13px;color:#6b6b80;margin:0 0 20px;">You have successfully borrowed a book from Lim Library. Please return it within <strong>7 days</strong>.</p>
+                            <div style="background:#e8e8ff;border-radius:10px;padding:18px 20px;margin-bottom:20px;">
+                              <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#0000ff;margin-bottom:6px;">Book Borrowed</div>
+                              <div style="font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:4px;">' . htmlspecialchars($bkRow->BookName) . '</div>
+                              <div style="font-size:12px;color:#6b6b80;">ISBN: ' . htmlspecialchars($bkRow->ISBNNumber ?? 'N/A') . '</div>
+                            </div>
+                            <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;">
+                              <tr>
+                                <td style="padding:8px 0;color:#6b6b80;border-bottom:1px solid #f0f0f8;">Borrow Date</td>
+                                <td style="padding:8px 0;font-weight:600;color:#1a1a2e;text-align:right;border-bottom:1px solid #f0f0f8;">' . date('d M Y') . '</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:8px 0;color:#6b6b80;">Return By</td>
+                                <td style="padding:8px 0;font-weight:600;color:#e65100;text-align:right;">' . date('d M Y', strtotime('+7 days')) . '</td>
+                              </tr>
+                            </table>
+                            <p style="font-size:12px;color:#6b6b80;margin:0;">Late returns may incur a fine. Log in to your library account to view your borrowed books anytime.</p>
+                          </div>
+                        </div>';
+                        $mail->send();
+                    }
+                } catch(Exception $e) {
+                    // Email failure is silent — borrow is already recorded
+                }
+                // ────────────────────────────────────────────────────
+
             } else {
                 $borrowMsg = 'Something went wrong. Please try again.';
                 $borrowMsgType = 'error';
             }
         }
     }
+    } // end borrow-limit else
 }
 
 // ── Fetch Book Details ─────────────────────────────────────────
@@ -114,8 +193,6 @@ if($myChk->rowCount() > 0) $alreadyBorrowed = true;
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <style>
-     
-
         /* ── BREADCRUMB ───────────────────────────── */
         .breadcrumb-bar {
             padding-top: calc(var(--nav-h) + 20px);
@@ -529,10 +606,11 @@ if($myChk->rowCount() > 0) $alreadyBorrowed = true;
 <script>
     function openConfirm()  { document.getElementById('confirmModal').classList.add('open'); }
     function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); }
-    // Close modal clicking outside
     document.getElementById('confirmModal').addEventListener('click', function(e) {
         if(e.target === this) closeConfirm();
     });
 </script>
+<?php include('includes/footer.php'); ?>
+<script src="assets/js/librarybot.js"></script>
 </body>
 </html>

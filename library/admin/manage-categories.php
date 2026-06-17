@@ -6,7 +6,12 @@ if(strlen($_SESSION['alogin'])==0){
   header('location:index.php');
 } else {
 
+if(empty($_SESSION['csrf_token'])) $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+
 if(isset($_GET['del'])){
+  if(!isset($_GET['tok']) || $_GET['tok'] !== $_SESSION['csrf_token']){
+    header('location:manage-categories.php'); exit;
+  }
   $id=$_GET['del'];
   $sql="DELETE FROM tblcategory WHERE id=:id";
   $query=$dbh->prepare($sql); $query->bindParam(':id',$id,PDO::PARAM_STR); $query->execute();
@@ -83,7 +88,7 @@ if(isset($_GET['del'])){
               <td>
                 <div class="action-group">
                   <a href="edit-category.php?catid=<?php echo htmlentities($result->id); ?>" class="btn btn-success btn-sm">✏️ Edit</a>
-                  <a href="manage-categories.php?del=<?php echo htmlentities($result->id); ?>"
+                  <a href="manage-categories.php?del=<?php echo htmlentities($result->id); ?>&tok=<?php echo $_SESSION["csrf_token"]; ?>"
                      onclick="return confirm('Delete this category?')" class="btn btn-danger btn-sm">🗑️ Delete</a>
                 </div>
               </td>
